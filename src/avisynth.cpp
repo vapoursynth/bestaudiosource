@@ -57,7 +57,7 @@ AvisynthAudioSource::AvisynthAudioSource(const char *SourceFile, int Track,
         Env->ThrowError("BestAudioSource: %s", E.what());
     }
 
-    const LWAudioProperties &AP = A->GetAudioProperties();
+    const AudioProperties &AP = A->GetAudioProperties();
     VI.nchannels = AP.Channels;
     VI.num_audio_samples = AP.NumSamples;
     VI.audio_samples_per_second = AP.SampleRate;
@@ -81,7 +81,7 @@ AvisynthAudioSource::AvisynthAudioSource(const char *SourceFile, int Track,
 }
 
 void AvisynthAudioSource::GetAudio(void* Buf, __int64 Start, __int64 Count, IScriptEnvironment *Env) {
-    const LWAudioProperties &AP = A->GetAudioProperties();
+    const AudioProperties &AP = A->GetAudioProperties();
     std::vector<uint8_t> Storage;
     Storage.resize(AP.Channels * Count * AP.BytesPerSample);
     std::vector<uint8_t *> Tmp;

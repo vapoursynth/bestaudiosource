@@ -22,6 +22,7 @@
 #define AUDIOSOURCE_H
 
 // FIXME, wrap everything its own namespace?
+// FIXME, export delay relative to first video track somehow
 
 #include <list>
 #include <vector>
@@ -38,11 +39,7 @@ class AudioException : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
-// FIXME, export delay relative to first video track
-
-// FIXME, rename to AudioProperties once wrapped in a namespace
-
-struct LWAudioProperties {
+struct AudioProperties {
     int IsFloat;
     int BytesPerSample;
     int SampleRate;
@@ -54,7 +51,7 @@ struct LWAudioProperties {
 
 class LWAudioDecoder {
 private:
-    LWAudioProperties AP = {};
+    AudioProperties AP = {};
     AVFormatContext *FormatContext = nullptr;
     AVCodecContext *CodecContext = nullptr;
     AVFrame *DecodeFrame = nullptr;
@@ -73,14 +70,11 @@ public:
     int64_t GetSamplePosition() const;
     int64_t GetSampleLength() const;
     int64_t GetFrameNumber() const;
-    const LWAudioProperties &GetAudioProperties() const;
+    const AudioProperties &GetAudioProperties() const;
     AVFrame *GetNextAVFrame();
     bool SkipNextAVFrame();
     bool HasMoreFrames() const;
 };
-
-// FIXME, ugly define that can probably be made less bad
-#define BAS_MAX_AUDIO_SOURCES 4
 
 class BestAudioSource {
 private:
@@ -99,13 +93,14 @@ private:
         uint8_t *GetPlanePtr(int Plane);
     };
 
-    LWAudioProperties AP = {};
+    static constexpr size_t MaxAudioSources = 4;
+    AudioProperties AP = {};
     std::string Source;
     int Track;
     bool HasExactNumAudioSamples = false;
     uint64_t DecoderSequenceNum = 0;
-    uint64_t DecoderLastUse[BAS_MAX_AUDIO_SOURCES] = {};
-    LWAudioDecoder *Decoders[BAS_MAX_AUDIO_SOURCES] = {};
+    uint64_t DecoderLastUse[MaxAudioSources] = {};
+    LWAudioDecoder *Decoders[MaxAudioSources] = {};
     std::list<CacheBlock> Cache;
     size_t MaxSize;
     size_t CacheSize = 0;
@@ -118,7 +113,7 @@ public:
     BestAudioSource(const char *SourceFile, int Track, size_t MaxCacheSize = 100 * 1024 * 1024, int64_t PreRoll = 200000);
     ~BestAudioSource();
     bool GetExactDuration();
-    const LWAudioProperties &GetAudioProperties() const;
+    const AudioProperties &GetAudioProperties() const;
     void GetAudio(uint8_t * const * const Data, int64_t Start, int64_t Count); // Audio outside the existing range is zeroed
 };
 

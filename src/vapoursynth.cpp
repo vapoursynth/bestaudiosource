@@ -74,7 +74,7 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
         D->A = new BestAudioSource(Source, Track);
         if (ExactSamples)
             D->A->GetExactDuration();
-        const LWAudioProperties &AP = D->A->GetAudioProperties();
+        const AudioProperties &AP = D->A->GetAudioProperties();
         D->AI.format = vsapi->queryAudioFormat(AP.IsFloat, AP.BytesPerSample * 8, AP.ChannelLayout, core);
         if (!D->AI.format)
             throw AudioException("Unsupported audio format from decoder (probably 8-bit)");

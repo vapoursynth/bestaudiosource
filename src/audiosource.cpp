@@ -169,7 +169,7 @@ int64_t LWAudioDecoder::GetFrameNumber() const {
     return CurrentFrame;
 }
 
-const LWAudioProperties &LWAudioDecoder::GetAudioProperties() const { 
+const AudioProperties &LWAudioDecoder::GetAudioProperties() const { 
     return AP;
 }
 
@@ -256,7 +256,7 @@ bool BestAudioSource::GetExactDuration() {
     if (HasExactNumAudioSamples)
         return true;
     int Index = -1;
-    for (int i = 0; i < BAS_MAX_AUDIO_SOURCES; i++) {
+    for (int i = 0; i < MaxAudioSources; i++) {
         if (Decoders[i] && (Index < 0 || Decoders[Index]->GetFrameNumber() < Decoders[i]->GetFrameNumber()))
             Index = i;
     }
@@ -277,7 +277,7 @@ bool BestAudioSource::GetExactDuration() {
     return true;
 }
 
-const LWAudioProperties &BestAudioSource::GetAudioProperties() const {
+const AudioProperties &BestAudioSource::GetAudioProperties() const {
     return AP;
 }
 
@@ -350,14 +350,14 @@ void BestAudioSource::GetAudio(uint8_t * const * const Data, int64_t Start, int6
         return;
 
     int Index = -1;
-    for (int i = 0; i < BAS_MAX_AUDIO_SOURCES; i++) {
+    for (int i = 0; i < MaxAudioSources; i++) {
         if (Decoders[i] && Decoders[i]->GetSamplePosition() <= Start && (Index < 0 || Decoders[Index]->GetSamplePosition() < Decoders[i]->GetSamplePosition()))
             Index = i;
     }
 
     // If an empty slot exists simply spawn a new decoder there
     if (Index < 0) {
-        for (int i = 0; i < BAS_MAX_AUDIO_SOURCES; i++) {
+        for (int i = 0; i < MaxAudioSources; i++) {
             if (!Decoders[i]) {
                 Index = i;
                 Decoders[i] = new LWAudioDecoder(Source.c_str(), Track);
@@ -369,7 +369,7 @@ void BestAudioSource::GetAudio(uint8_t * const * const Data, int64_t Start, int6
     // No far enough back decoder exists and all slots are occupied so evict a random one
     if (Index < 0) {
         Index = 0;
-        for (int i = 0; i < BAS_MAX_AUDIO_SOURCES; i++) {
+        for (int i = 0; i < MaxAudioSources; i++) {
             if (Decoders[i] && DecoderLastUse[i] < DecoderLastUse[Index])
                 Index = i;
         }
