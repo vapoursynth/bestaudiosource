@@ -1,0 +1,125 @@
+//  Copyright (c) 2020 Fredrik Mellbin
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+
+#ifndef AUDIOSOURCE_H
+#define AUDIOSOURCE_H
+
+// FIXME, wrap everything its own namespace?
+
+#include <list>
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <stdexcept>
+
+struct AVFormatContext;
+struct AVCodecContext;
+struct AVFrame;
+struct AVPacket;
+
+class AudioException : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+// FIXME, export delay relative to first video track
+
+// FIXME, rename to AudioProperties once wrapped in a namespace
+
+struct LWAudioProperties {
+    int IsFloat;
+    int BytesPerSample;
+    int SampleRate;
+    int Channels;
+    uint64_t ChannelLayout;
+    int64_t NumSamples; /* estimated by decoder, may be wrong */
+    int64_t StartTime; /* in samples, equivalent to the offset used to have a zero start time */
+};
+
+class LWAudioDecoder {
+private:
+    LWAudioProperties AP = {};
+    AVFormatContext *FormatContext = nullptr;
+    AVCodecContext *CodecContext = nullptr;
+    AVFrame *DecodeFrame = nullptr;
+    int64_t CurrentPosition = 0;
+    int64_t CurrentFrame = 0;
+    int TrackNumber = -1;
+    bool DecodeSuccess = false;
+
+    void OpenFile(const char *SourceFile, int Track);
+    bool ReadPacket(AVPacket *Packet);
+    bool DecodeNextAVFrame();
+    void Free();
+public:
+    LWAudioDecoder(const char *SourceFile, int Track); // Positive track numbers are absolute. Negative track numbers mean nth audio track to simplify things.
+    ~LWAudioDecoder();
+    int64_t GetSamplePosition() const;
+    int64_t GetSampleLength() const;
+    int64_t GetFrameNumber() const;
+    const LWAudioProperties &GetAudioProperties() const;
+    AVFrame *GetNextAVFrame();
+    bool SkipNextAVFrame();
+    bool HasMoreFrames() const;
+};
+
+// FIXME, ugly define that can probably be made less bad
+#define BAS_MAX_AUDIO_SOURCES 4
+
+class BestAudioSource {
+private:
+    class CacheBlock {
+    private:
+        AVFrame *InternalFrame = nullptr;
+        std::vector<uint8_t> Storage;
+        size_t LineSize = 0;
+    public:
+        int64_t FrameNumber;
+        int64_t Start;
+        int64_t Length;
+
+        CacheBlock(int64_t FrameNumber, int64_t Start, AVFrame *Frame);
+        ~CacheBlock();
+        uint8_t *GetPlanePtr(int Plane);
+    };
+
+    LWAudioProperties AP = {};
+    std::string Source;
+    int Track;
+    bool HasExactNumAudioSamples = false;
+    uint64_t DecoderSequenceNum = 0;
+    uint64_t DecoderLastUse[BAS_MAX_AUDIO_SOURCES] = {};
+    LWAudioDecoder *Decoders[BAS_MAX_AUDIO_SOURCES] = {};
+    std::list<CacheBlock> Cache;
+    size_t MaxSize;
+    size_t CacheSize = 0;
+    int64_t PreRoll;
+
+    void ZeroFillStart(uint8_t *Data[], int64_t &Start, int64_t &Count);
+    void ZeroFillEnd(uint8_t *Data[], int64_t Start, int64_t &Count);
+    bool FillInBlock(CacheBlock &Block, uint8_t *Data[], int64_t &Start, int64_t &Count);
+public:
+    BestAudioSource(const char *SourceFile, int Track, size_t MaxCacheSize = 100 * 1024 * 1024, int64_t PreRoll = 200000);
+    ~BestAudioSource();
+    bool GetExactDuration();
+    const LWAudioProperties &GetAudioProperties() const;
+    void GetAudio(uint8_t * const * const Data, int64_t Start, int64_t Count); // Audio outside the existing range is zeroed
+};
+
+#endif
