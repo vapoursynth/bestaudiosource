@@ -72,23 +72,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../include;../../AviSynthPlus/avs_core/include;../../ffmpeg32/include;../../zlib32;$(IncludePath)</IncludePath>
+    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg32/include;../../zlib32;$(IncludePath)</IncludePath>
     <LibraryPath>../../ffmpeg32/lib;../../zlib32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>../../ffmpeg64/lib;../../zlib64;$(LibraryPath)</LibraryPath>
-    <IncludePath>../include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
+    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../include;../../AviSynthPlus/avs_core/include;../../ffmpeg32/include;../../zlib32;$(IncludePath)</IncludePath>
+    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg32/include;../../zlib32;$(IncludePath)</IncludePath>
     <LibraryPath>../../ffmpeg32/lib;../../zlib32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>../../ffmpeg64/lib;../../zlib64;$(LibraryPath)</LibraryPath>
-    <IncludePath>../include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
+    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,11 +99,13 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>libavutil.a;libavcodec.a;libavformat.a;libswscale.a;libswresample.a;zlib.lib;ws2_32.lib;secur32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,11 +117,13 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>libavutil.a;libavcodec.a;libavformat.a;libswscale.a;libswresample.a;zlib.lib;ws2_32.lib;secur32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,6 +137,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,6 +145,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>libavutil.a;libavcodec.a;libavformat.a;libswscale.a;libswresample.a;zlib.lib;ws2_32.lib;secur32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -153,6 +159,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,6 +167,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>libavutil.a;libavcodec.a;libavformat.a;libswscale.a;libswresample.a;zlib.lib;ws2_32.lib;secur32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
