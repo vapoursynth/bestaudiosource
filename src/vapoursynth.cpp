@@ -41,7 +41,7 @@ static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReas
         std::vector<uint8_t *> tmp;
         tmp.reserve(d->AI.format->numChannels);
         for (int p = 0; p < d->AI.format->numChannels; p++)
-            tmp.push_back(vsapi->getWritePtr(f, p++));
+            tmp.push_back(vsapi->getWritePtr(f, p));
         try {
             d->A->GetAudio(tmp.data(), n * d->AI.format->samplesPerFrame, samplesOut);
         } catch (AudioException &e) {

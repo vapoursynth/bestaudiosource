@@ -131,7 +131,7 @@ LWAudioDecoder::LWAudioDecoder(const char *SourceFile, int Track) {
         AP.BytesPerSample = av_get_bytes_per_sample(static_cast<AVSampleFormat>(DecodeFrame->format));
         AP.SampleRate = DecodeFrame->sample_rate;
         AP.Channels = DecodeFrame->channels;
-        AP.ChannelLayout = DecodeFrame->channel_layout;
+        AP.ChannelLayout = DecodeFrame->channel_layout ? DecodeFrame->channel_layout : av_get_default_channel_layout(DecodeFrame->channels);  
         AP.NumSamples = (FormatContext->duration * DecodeFrame->sample_rate) / AV_TIME_BASE - FormatContext->streams[TrackNumber]->codecpar->initial_padding;
         AP.StartTime = (DecodeFrame->best_effort_timestamp * FormatContext->streams[TrackNumber]->time_base.num * AP.SampleRate) / FormatContext->streams[TrackNumber]->time_base.den + FormatContext->streams[TrackNumber]->codecpar->initial_padding;
 
