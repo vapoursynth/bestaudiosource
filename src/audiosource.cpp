@@ -250,7 +250,7 @@ uint8_t *BestAudioSource::CacheBlock::GetPlanePtr(int Plane) {
 BestAudioSource::BestAudioSource(const char *SourceFile, int Track, int AjustDelay, size_t MaxCacheSize, int64_t PreRoll) : Source(SourceFile), Track(Track), PreRoll(PreRoll) {
     Decoders[0] = new LWAudioDecoder(Source.c_str(), Track);
     AP = Decoders[0]->GetAudioProperties();
-    MaxSize = MaxCacheSize / (AP.Channels * AP.BytesPerSample);
+    MaxSize = MaxCacheSize / (static_cast<size_t>(AP.Channels) * AP.BytesPerSample);
 }
 
 BestAudioSource::~BestAudioSource() {

@@ -22,6 +22,7 @@
 #include <VapourSynth.h>
 #include <VSHelper.h>
 #include <vector>
+#include <algorithm>
 
 struct BestAudioSourceData {
     VSAudioInfo AI = {};
@@ -35,7 +36,7 @@ static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReas
     BestAudioSourceData *d = reinterpret_cast<BestAudioSourceData *>(*instanceData);
 
     if (activationReason == arInitial) {
-        int samplesOut = int64ToIntS(VSMIN(d->AI.format->samplesPerFrame, d->AI.numSamples - n * d->AI.format->samplesPerFrame));
+        int samplesOut = std::min<int>(d->AI.format->samplesPerFrame, d->AI.numSamples - n * static_cast<int64_t>(d->AI.format->samplesPerFrame));
         VSFrameRef * f = vsapi->newAudioFrame(d->AI.format, d->AI.sampleRate, samplesOut, nullptr, core);
 
         std::vector<uint8_t *> tmp;
@@ -43,7 +44,7 @@ static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReas
         for (int p = 0; p < d->AI.format->numChannels; p++)
             tmp.push_back(vsapi->getWritePtr(f, p));
         try {
-            d->A->GetAudio(tmp.data(), n * d->AI.format->samplesPerFrame, samplesOut);
+            d->A->GetAudio(tmp.data(), n * static_cast<int64_t>(d->AI.format->samplesPerFrame), samplesOut);
         } catch (AudioException &e) {
             vsapi->setFilterError(e.what(), frameCtx);
             vsapi->freeFrame(f);
