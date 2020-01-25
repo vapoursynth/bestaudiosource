@@ -67,6 +67,7 @@ private:
 public:
     LWAudioDecoder(const char *SourceFile, int Track); // Positive track numbers are absolute. Negative track numbers mean nth audio track to simplify things.
     ~LWAudioDecoder();
+    int64_t GetRelativeStartTime(int Track) const; // Returns INT64_MIN on error
     int64_t GetSamplePosition() const;
     int64_t GetSampleLength() const;
     int64_t GetFrameNumber() const;
@@ -110,7 +111,7 @@ private:
     void ZeroFillEnd(uint8_t *Data[], int64_t Start, int64_t &Count);
     bool FillInBlock(CacheBlock &Block, uint8_t *Data[], int64_t &Start, int64_t &Count);
 public:
-    BestAudioSource(const char *SourceFile, int Track, size_t MaxCacheSize = 100 * 1024 * 1024, int64_t PreRoll = 200000);
+    BestAudioSource(const char *SourceFile, int Track, int AjustDelay = -2, size_t MaxCacheSize = 100 * 1024 * 1024, int64_t PreRoll = 200000);
     ~BestAudioSource();
     bool GetExactDuration();
     const AudioProperties &GetAudioProperties() const;

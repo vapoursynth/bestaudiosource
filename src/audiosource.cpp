@@ -154,6 +154,12 @@ LWAudioDecoder::~LWAudioDecoder() {
     Free();
 }
 
+int64_t LWAudioDecoder::GetRelativeStartTime(int Track) const {
+    if (Track < 0 || Track >= static_cast<int>(FormatContext->nb_streams))
+        return INT64_MIN;
+    return 0;
+}
+
 int64_t LWAudioDecoder::GetSamplePosition() const {
     return CurrentPosition;
 }
@@ -241,7 +247,7 @@ uint8_t *BestAudioSource::CacheBlock::GetPlanePtr(int Plane) {
         return Storage.data() + Plane * LineSize;
 }
 
-BestAudioSource::BestAudioSource(const char *SourceFile, int Track, size_t MaxCacheSize, int64_t PreRoll) : Source(SourceFile), Track(Track), PreRoll(PreRoll) {
+BestAudioSource::BestAudioSource(const char *SourceFile, int Track, int AjustDelay, size_t MaxCacheSize, int64_t PreRoll) : Source(SourceFile), Track(Track), PreRoll(PreRoll) {
     Decoders[0] = new LWAudioDecoder(Source.c_str(), Track);
     AP = Decoders[0]->GetAudioProperties();
     MaxSize = MaxCacheSize / (AP.Channels * AP.BytesPerSample);

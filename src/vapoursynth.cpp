@@ -65,13 +65,13 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
     int Track = int64ToIntS(vsapi->propGetInt(in, "track", 0, &err));
     if (err)
         Track = -1;
-    int AjustDelay = int64ToIntS(vsapi->propGetInt(in, "adjustdelay", 0, &err));
+    int AdjustDelay = int64ToIntS(vsapi->propGetInt(in, "adjustdelay", 0, &err));
     bool ExactSamples = !!vsapi->propGetInt(in, "exactsamples", 0, &err);
 
     BestAudioSourceData *D = new BestAudioSourceData();
 
     try {
-        D->A = new BestAudioSource(Source, Track);
+        D->A = new BestAudioSource(Source, Track, AdjustDelay);
         if (ExactSamples)
             D->A->GetExactDuration();
         const AudioProperties &AP = D->A->GetAudioProperties();
