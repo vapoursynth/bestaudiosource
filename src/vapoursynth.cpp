@@ -88,7 +88,7 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
         return;
     }
 
-    vsapi->createAudioFilter(in, out, "Source", &D->AI, 1, BestAudioSourceGetFrame, BestAudioSourceFree, fmUnordered, nfMakeLinear, D, core);
+    vsapi->createAudioFilter(out, "Source", &D->AI, 1, BestAudioSourceGetFrame, BestAudioSourceFree, fmUnordered, nfMakeLinear, D, core);
 }
 
 VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegisterFunction registerFunc, VSPlugin *plugin) {

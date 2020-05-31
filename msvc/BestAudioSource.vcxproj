@@ -78,7 +78,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>../../ffmpeg64/lib;../../zlib64;$(LibraryPath)</LibraryPath>
-    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
+    <IncludePath>../../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -88,7 +88,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>../../ffmpeg64/lib;../../zlib64;$(LibraryPath)</LibraryPath>
-    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
+    <IncludePath>../../../vapoursynth/include;../../AviSynthPlus/avs_core/include;../../ffmpeg64/include;../../zlib64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
