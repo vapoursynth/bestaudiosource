@@ -90,7 +90,7 @@ private:
         int64_t Start;
         int64_t Length;
 
-        CacheBlock(int64_t FrameNumber, int64_t Start, size_t Shift, AVFrame *Frame);
+        CacheBlock(int64_t FrameNumber, int64_t Start, AVFrame *Frame);
         ~CacheBlock();
         uint8_t *GetPlanePtr(int Plane);
     };
