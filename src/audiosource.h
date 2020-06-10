@@ -40,8 +40,9 @@ class AudioException : public std::runtime_error {
 };
 
 struct AudioProperties {
-    int IsFloat;
+    bool IsFloat;
     int BytesPerSample;
+    int BitsPerSample;
     int SampleRate;
     int Channels;
     uint64_t ChannelLayout;
@@ -89,7 +90,7 @@ private:
         int64_t Start;
         int64_t Length;
 
-        CacheBlock(int64_t FrameNumber, int64_t Start, AVFrame *Frame);
+        CacheBlock(int64_t FrameNumber, int64_t Start, size_t Shift, AVFrame *Frame);
         ~CacheBlock();
         uint8_t *GetPlanePtr(int Plane);
     };

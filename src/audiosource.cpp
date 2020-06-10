@@ -127,8 +127,9 @@ LWAudioDecoder::LWAudioDecoder(const char *SourceFile, int Track) {
         if (!DecodeSuccess)
             throw AudioException("Couldn't decode initial frame");
 
-        AP.IsFloat = (DecodeFrame->format == AV_SAMPLE_FMT_FLTP || DecodeFrame->format == AV_SAMPLE_FMT_FLT || DecodeFrame->format == AV_SAMPLE_FMT_DBLP || DecodeFrame->format == AV_SAMPLE_FMT_DBL) ? 1 : 0;
+        AP.IsFloat = (DecodeFrame->format == AV_SAMPLE_FMT_FLTP || DecodeFrame->format == AV_SAMPLE_FMT_FLT || DecodeFrame->format == AV_SAMPLE_FMT_DBLP || DecodeFrame->format == AV_SAMPLE_FMT_DBL);
         AP.BytesPerSample = av_get_bytes_per_sample(static_cast<AVSampleFormat>(DecodeFrame->format));
+        AP.BitsPerSample = CodecContext->bits_per_raw_sample ? (CodecContext->bits_per_raw_sample) : (AP.BytesPerSample * 8); // assume all bits are relevant if not specified
         AP.SampleRate = DecodeFrame->sample_rate;
         AP.Channels = DecodeFrame->channels;
         AP.ChannelLayout = DecodeFrame->channel_layout ? DecodeFrame->channel_layout : av_get_default_channel_layout(DecodeFrame->channels);  
