@@ -36,7 +36,7 @@ static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReas
     BestAudioSourceData *d = reinterpret_cast<BestAudioSourceData *>(*instanceData);
 
     if (activationReason == arInitial) {
-        int samplesOut = std::min<int>(d->AI.format->samplesPerFrame, d->AI.numSamples - n * static_cast<int64_t>(d->AI.format->samplesPerFrame));
+        int64_t samplesOut = std::min<int64_t>(d->AI.format->samplesPerFrame, d->AI.numSamples - n * static_cast<int64_t>(d->AI.format->samplesPerFrame));
         VSFrameRef * f = vsapi->newAudioFrame(d->AI.format, d->AI.sampleRate, samplesOut, nullptr, core);
 
         std::vector<uint8_t *> tmp;
@@ -84,7 +84,7 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
         D->AI.numFrames = int64ToIntS((AP.NumSamples + D->AI.format->samplesPerFrame - 1) / D->AI.format->samplesPerFrame);
     } catch (AudioException &E) {
         delete D;
-        vsapi->setError(out, E.what());
+        vsapi->setError(out, (std::string("BestAudioSource: ") + E.what()).c_str());
         return;
     }
 
