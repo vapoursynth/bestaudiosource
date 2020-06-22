@@ -64,8 +64,9 @@ AvisynthAudioSource::AvisynthAudioSource(const char *SourceFile, int Track,
 
     // casting to int should be safe; none of the channel constants are greater than INT_MAX
     Env->SetVar(Env->Sprintf("%s%s", VarPrefix, "BASCHANNEL_LAYOUT"), static_cast<int>(AP.ChannelLayout));
+    Env->SetVar(Env->Sprintf("%s%s", VarPrefix, "BASVALID_BITS"), static_cast<int>(AP.BitsPerSample));
 
-    Env->SetGlobalVar("BASVAR_PREFIX", VarPrefix);
+    Env->SetGlobalVar("BASVAR_PREFIX", Env->SaveString(VarPrefix));
 
     if (AP.IsFloat && AP.BytesPerSample == 4) {
         VI.sample_type = SAMPLE_FLOAT;
