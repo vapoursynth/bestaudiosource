@@ -34,9 +34,18 @@ static void PackChannels(const uint8_t * const * const Src, uint8_t *Dst, size_t
     }
 }
 
+void PackChannels32to24(const uint8_t *const *const Src, uint8_t *Dst, size_t Length, size_t Channels) {
+    for (size_t i = 0; i < Length; i++) {
+        for (size_t c = 0; c < Channels; c++)
+            memcpy(Dst + c * 3, Src[c] + i * 4 + 1, 3);
+        Dst += Channels * 3;
+    }
+}
+
 class AvisynthAudioSource : public IClip {
     VideoInfo VI = {};
     std::unique_ptr<BestAudioSource> A;
+    size_t bytesPerOutputSample;
 public:
     AvisynthAudioSource(const char *SourceFile, int Track,
                         int AdjustDelay, bool ExactSamples, const char *VarPrefix, IScriptEnvironment* Env);
@@ -61,6 +70,7 @@ AvisynthAudioSource::AvisynthAudioSource(const char *SourceFile, int Track,
     VI.nchannels = AP.Channels;
     VI.num_audio_samples = AP.NumSamples;
     VI.audio_samples_per_second = AP.SampleRate;
+    bytesPerOutputSample = (AP.BitsPerSample + 7) / 8;
 
     // casting to int should be safe; none of the channel constants are greater than INT_MAX
     Env->SetVar(Env->Sprintf("%s%s", VarPrefix, "BASCHANNEL_LAYOUT"), static_cast<int>(AP.ChannelLayout));
@@ -68,13 +78,15 @@ AvisynthAudioSource::AvisynthAudioSource(const char *SourceFile, int Track,
 
     Env->SetGlobalVar("BASVAR_PREFIX", Env->SaveString(VarPrefix));
 
-    if (AP.IsFloat && AP.BytesPerSample == 4) {
+    if (AP.IsFloat && bytesPerOutputSample == 4) {
         VI.sample_type = SAMPLE_FLOAT;
-    } else if (!AP.IsFloat && AP.BytesPerSample == 1) {
+    } else if (!AP.IsFloat && bytesPerOutputSample == 1) {
         VI.sample_type = SAMPLE_INT8;
-    } else if (!AP.IsFloat && AP.BytesPerSample == 2) {
+    } else if (!AP.IsFloat && bytesPerOutputSample == 2) {
         VI.sample_type = SAMPLE_INT16;
-    } else if (!AP.IsFloat && AP.BytesPerSample == 4) {
+    } else if (!AP.IsFloat && bytesPerOutputSample == 3) {
+        VI.sample_type = SAMPLE_INT24;
+    } else if (!AP.IsFloat && bytesPerOutputSample == 4) {
         VI.sample_type = SAMPLE_INT32;
     } else {
         Env->ThrowError("BestAudioSource: Bad audio format");
@@ -97,11 +109,13 @@ void AvisynthAudioSource::GetAudio(void* Buf, __int64 Start, __int64 Count, IScr
         Env->ThrowError("BestAudioSource: %s", E.what());
     }
 
-    if (AP.BytesPerSample == 1) {
+    if (bytesPerOutputSample == 1) {
         PackChannels<uint8_t>(Tmp.data(), reinterpret_cast<uint8_t *>(Buf), Count, AP.Channels);
-    } else if (AP.BytesPerSample == 2) {
+    } else if (bytesPerOutputSample == 2) {
         PackChannels<uint16_t>(Tmp.data(), reinterpret_cast<uint8_t *>(Buf), Count, AP.Channels);
-    } else if (AP.BytesPerSample == 4) {
+    } else if (bytesPerOutputSample == 3) {
+        PackChannels32to24(Tmp.data(), reinterpret_cast<uint8_t *>(Buf), Count, AP.Channels);
+    } else if (bytesPerOutputSample == 4) {
         PackChannels<uint32_t>(Tmp.data(), reinterpret_cast<uint8_t *>(Buf), Count, AP.Channels);
     }
 }
