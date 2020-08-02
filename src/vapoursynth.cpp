@@ -19,32 +19,29 @@
 //  THE SOFTWARE.
 
 #include "audiosource.h"
-#include <VapourSynth.h>
-#include <VSHelper.h>
+#include <VapourSynth4.h>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 struct BestAudioSourceData {
     VSAudioInfo AI = {};
-    BestAudioSource *A = nullptr;
-    ~BestAudioSourceData() {
-        delete A;
-    }
+    std::unique_ptr<BestAudioSource> A;
 };
 
-static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi) {
-    BestAudioSourceData *d = reinterpret_cast<BestAudioSourceData *>(*instanceData);
+static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi) {
+    BestAudioSourceData *d = reinterpret_cast<BestAudioSourceData *>(instanceData);
 
     if (activationReason == arInitial) {
-        int64_t samplesOut = std::min<int64_t>(d->AI.format->samplesPerFrame, d->AI.numSamples - n * static_cast<int64_t>(d->AI.format->samplesPerFrame));
-        VSFrameRef * f = vsapi->newAudioFrame(d->AI.format, d->AI.sampleRate, samplesOut, nullptr, core);
+        int64_t samplesOut = std::min<int64_t>(VS_AUDIO_FRAME_SAMPLES, d->AI.numSamples - n * static_cast<int64_t>(VS_AUDIO_FRAME_SAMPLES));
+        VSFrameRef * f = vsapi->newAudioFrame(&d->AI.format, static_cast<int>(samplesOut), nullptr, core);
 
         std::vector<uint8_t *> tmp;
-        tmp.reserve(d->AI.format->numChannels);
-        for (int p = 0; p < d->AI.format->numChannels; p++)
+        tmp.reserve(d->AI.format.numChannels);
+        for (int p = 0; p < d->AI.format.numChannels; p++)
             tmp.push_back(vsapi->getWritePtr(f, p));
         try {
-            d->A->GetAudio(tmp.data(), n * static_cast<int64_t>(d->AI.format->samplesPerFrame), samplesOut);
+            d->A->GetAudio(tmp.data(), n * static_cast<int64_t>(VS_AUDIO_FRAME_SAMPLES), samplesOut);
         } catch (AudioException &e) {
             vsapi->setFilterError(e.what(), frameCtx);
             vsapi->freeFrame(f);
@@ -62,36 +59,37 @@ static void VS_CC BestAudioSourceFree(void *instanceData, VSCore *core, const VS
 
 static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSCore *core, const VSAPI *vsapi) {
     int err;
-    const char *Source = vsapi->propGetData(in, "source", 0, nullptr);
-    int Track = int64ToIntS(vsapi->propGetInt(in, "track", 0, &err));
+    const char *Source = vsapi->mapGetData(in, "source", 0, nullptr);
+    int Track = vsapi->mapGetIntSaturated(in, "track", 0, &err);
     if (err)
         Track = -1;
-    int AdjustDelay = int64ToIntS(vsapi->propGetInt(in, "adjustdelay", 0, &err));
-    bool ExactSamples = !!vsapi->propGetInt(in, "exactsamples", 0, &err);
+    int AdjustDelay = vsapi->mapGetIntSaturated(in, "adjustdelay", 0, &err);
+    bool ExactSamples = !!vsapi->mapGetInt(in, "exactsamples", 0, &err);
 
     BestAudioSourceData *D = new BestAudioSourceData();
 
     try {
-        D->A = new BestAudioSource(Source, Track, AdjustDelay);
+        D->A.reset(new BestAudioSource(Source, Track, AdjustDelay));
         if (ExactSamples)
             D->A->GetExactDuration();
         const AudioProperties &AP = D->A->GetAudioProperties();
-        D->AI.format = vsapi->queryAudioFormat(AP.IsFloat, AP.BitsPerSample, AP.ChannelLayout, core);
-        if (!D->AI.format)
+        if (!vsapi->queryAudioFormat(&D->AI.format, AP.IsFloat, AP.BitsPerSample, AP.ChannelLayout, core))
             throw AudioException("Unsupported audio format from decoder (probably 8-bit)");
         D->AI.sampleRate = AP.SampleRate;
         D->AI.numSamples = AP.NumSamples;
-        D->AI.numFrames = int64ToIntS((AP.NumSamples + D->AI.format->samplesPerFrame - 1) / D->AI.format->samplesPerFrame);
-    } catch (AudioException &E) {
+        D->AI.numFrames = static_cast<int>((AP.NumSamples + VS_AUDIO_FRAME_SAMPLES - 1) / VS_AUDIO_FRAME_SAMPLES);
+        if ((AP.NumSamples + VS_AUDIO_FRAME_SAMPLES - 1) / VS_AUDIO_FRAME_SAMPLES > std::numeric_limits<int>::max())
+            throw AudioException("Unsupported audio format from decoder (probably 8-bit)");
+    } catch (AudioException &e) {
         delete D;
-        vsapi->setError(out, (std::string("BestAudioSource: ") + E.what()).c_str());
+        vsapi->mapSetError(out, (std::string("BestAudioSource: ") + e.what()).c_str());
         return;
     }
 
     vsapi->createAudioFilter(out, "Source", &D->AI, 1, BestAudioSourceGetFrame, BestAudioSourceFree, fmUnordered, nfMakeLinear, D, core);
 }
 
-VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegisterFunction registerFunc, VSPlugin *plugin) {
-    configFunc("com.vapoursynth.bestaudiosource", "bas", "Best Audio Source", VAPOURSYNTH_API_VERSION, 1, plugin);
-    registerFunc("Source", "source:data;track:int:opt;adjustdelay:int:opt;exactsamples:int:opt;", CreateBestAudioSource, nullptr, plugin);
+VS_EXTERNAL_API(void) VapourSynthPluginInit2(VSPlugin *plugin, const VSPLUGINAPI *vspapi) {
+    vspapi->configPlugin("com.vapoursynth.bestaudiosource", "bas", "Best Audio Source", VS_MAKE_VERSION(0, 1), VAPOURSYNTH_API_VERSION, 0, plugin);
+    vspapi->registerFunction("Source", "source:data;track:int:opt;adjustdelay:int:opt;exactsamples:int:opt;", "clip:anode;", CreateBestAudioSource, nullptr, plugin);
 }
