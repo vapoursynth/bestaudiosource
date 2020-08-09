@@ -1,5 +1,5 @@
 project('BestAudioSource', 'cpp',
-  default_options : ['buildtype=release', 'b_ndebug=if-release', 'c_std=c++17'],
+  default_options : ['buildtype=release', 'b_ndebug=if-release', 'c_std=c++14'],
   meson_version : '>=0.48.0'
 )
 
