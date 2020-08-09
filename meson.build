@@ -1,9 +1,7 @@
-project('L-SMASH-Works', 'cpp',
+project('BestAudioSource', 'cpp',
   default_options : ['buildtype=release', 'b_ndebug=if-release', 'c_std=c++17'],
   meson_version : '>=0.48.0'
 )
-
-add_project_arguments('-ffast-math', language : 'cpp')
 
 sources = [
   'src/audiosource.cpp',
