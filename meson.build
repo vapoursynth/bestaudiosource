@@ -17,14 +17,6 @@ deps = [
   dependency('libavformat', version : '>=58.12.0')
 ]
 
-if host_machine.cpu_family().startswith('x86')
-  add_project_arguments('-mfpmath=sse', '-msse2', language : 'cpp')
-endif
-
-if host_machine.system() == 'windows'
-  add_project_arguments('-D__USE_MINGW_ANSI_STDIO', language : 'cpp')
-endif
-
 shared_module('bestaudiosource', sources,
   dependencies : deps,
   install : true,
