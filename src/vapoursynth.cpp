@@ -29,12 +29,12 @@ struct BestAudioSourceData {
     std::unique_ptr<BestAudioSource> A;
 };
 
-static const VSFrameRef *VS_CC BestAudioSourceGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi) {
+static const VSFrame *VS_CC BestAudioSourceGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi) {
     BestAudioSourceData *d = reinterpret_cast<BestAudioSourceData *>(instanceData);
 
     if (activationReason == arInitial) {
         int64_t samplesOut = std::min<int64_t>(VS_AUDIO_FRAME_SAMPLES, d->AI.numSamples - n * static_cast<int64_t>(VS_AUDIO_FRAME_SAMPLES));
-        VSFrameRef * f = vsapi->newAudioFrame(&d->AI.format, static_cast<int>(samplesOut), nullptr, core);
+        VSFrame *f = vsapi->newAudioFrame(&d->AI.format, static_cast<int>(samplesOut), nullptr, core);
 
         std::vector<uint8_t *> tmp;
         tmp.reserve(d->AI.format.numChannels);
@@ -86,7 +86,7 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
         return;
     }
 
-    vsapi->createAudioFilter(out, "Source", &D->AI, 1, BestAudioSourceGetFrame, BestAudioSourceFree, fmUnordered, nfMakeLinear, D, core);
+    vsapi->createAudioFilter(out, "Source", &D->AI, BestAudioSourceGetFrame, BestAudioSourceFree, fmUnordered, nullptr, 0, D, core);
 }
 
 VS_EXTERNAL_API(void) VapourSynthPluginInit2(VSPlugin *plugin, const VSPLUGINAPI *vspapi) {

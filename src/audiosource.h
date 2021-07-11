@@ -106,7 +106,7 @@ private:
     std::list<CacheBlock> Cache;
     size_t MaxSize;
     size_t CacheSize = 0;
-    int64_t PreRoll;
+    int64_t PreRoll; // FIXME, probably a leftover from FFMS2 code
 
     void ZeroFillStart(uint8_t *Data[], int64_t &Start, int64_t &Count);
     void ZeroFillEnd(uint8_t *Data[], int64_t Start, int64_t &Count);
