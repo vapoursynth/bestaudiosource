@@ -117,15 +117,16 @@ private:
     std::list<CacheBlock> Cache;
     size_t MaxSize;
     size_t CacheSize = 0;
-    int64_t PreRoll; // FIXME, probably a leftover from FFMS2 code
+    int64_t PreRoll = 200000;
 
     void ZeroFillStart(uint8_t *Data[], int64_t &Start, int64_t &Count);
     void ZeroFillEnd(uint8_t *Data[], int64_t Start, int64_t &Count);
     bool FillInBlock(CacheBlock &Block, uint8_t *Data[], int64_t &Start, int64_t &Count);
 public:
-    BestAudioSource(const char *SourceFile, int Track, int AjustDelay = -2, const FFmpegOptions *Options = nullptr, int64_t PreRoll = 200000);
+    BestAudioSource(const char *SourceFile, int Track, int AjustDelay = -2, const FFmpegOptions *Options = nullptr);
     ~BestAudioSource();
     void SetMaxCacheSize(size_t bytes); /* default max size is 100MB */
+    void SetSeekPreRoll(size_t samples); /* the number of samples to cache before the position being fast forwarded to, default is 200k samples */
     bool GetExactDuration();
     const AudioProperties &GetAudioProperties() const;
     void GetAudio(uint8_t * const * const Data, int64_t Start, int64_t Count); // Audio outside the existing range is zeroed

@@ -260,7 +260,7 @@ uint8_t *BestAudioSource::CacheBlock::GetPlanePtr(int Plane) {
         return Storage.data() + Plane * LineSize;
 }
 
-BestAudioSource::BestAudioSource(const char *SourceFile, int Track, int AjustDelay, const FFmpegOptions *Options, int64_t PreRoll) : Source(SourceFile), Track(Track), PreRoll(PreRoll) {
+BestAudioSource::BestAudioSource(const char *SourceFile, int Track, int AjustDelay, const FFmpegOptions *Options) : Source(SourceFile), Track(Track) {
     if (Options)
         FFOptions = *Options;
     Decoders[0] = new LWAudioDecoder(Source.c_str(), Track, FFOptions);
@@ -275,6 +275,14 @@ BestAudioSource::~BestAudioSource() {
 
 void BestAudioSource::SetMaxCacheSize(size_t bytes) {
     MaxSize = bytes / (static_cast<size_t>(AP.Channels) * AP.BytesPerSample);
+    while (CacheSize > MaxSize) {
+        CacheSize -= Cache.back().Length;
+        Cache.pop_back();
+    }
+}
+
+void BestAudioSource::SetSeekPreRoll(size_t samples) {
+    PreRoll = static_cast<int64_t>(samples);
 }
 
 bool BestAudioSource::GetExactDuration() {
