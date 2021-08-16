@@ -1,4 +1,4 @@
-//  Copyright (c) 2020 Fredrik Mellbin
+//  Copyright (c) 2020-2021 Fredrik Mellbin
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -50,6 +50,15 @@ struct AudioProperties {
     int64_t StartTime; /* in samples, equivalent to the offset used to have a zero start time */
 };
 
+/* These correspond to the FFmpeg options of the same name */
+struct FFmpegOptions {
+    /* mp4/mov/3gpp demuxer options */
+    bool enable_drefs = false;
+    bool use_absolute_paths = false;
+    /* ac3 decoder family options */
+    double drc_scale = 0;
+};
+
 class LWAudioDecoder {
 private:
     AudioProperties AP = {};
@@ -60,13 +69,14 @@ private:
     int64_t CurrentFrame = 0;
     int TrackNumber = -1;
     bool DecodeSuccess = false;
+    AVPacket *Packet = nullptr;
 
-    void OpenFile(const char *SourceFile, int Track);
+    void OpenFile(const char *SourceFile, int Track, const FFmpegOptions &options);
     bool ReadPacket(AVPacket *Packet);
     bool DecodeNextAVFrame();
     void Free();
 public:
-    LWAudioDecoder(const char *SourceFile, int Track); // Positive track numbers are absolute. Negative track numbers mean nth audio track to simplify things.
+    LWAudioDecoder(const char *SourceFile, int Track, const FFmpegOptions &options); // Positive track numbers are absolute. Negative track numbers mean nth audio track to simplify things.
     ~LWAudioDecoder();
     int64_t GetRelativeStartTime(int Track) const; // Returns INT64_MIN on error
     int64_t GetSamplePosition() const;
@@ -96,6 +106,7 @@ private:
     };
 
     static constexpr size_t MaxAudioSources = 4;
+    FFmpegOptions FFOptions = {};
     AudioProperties AP = {};
     std::string Source;
     int Track;
@@ -112,8 +123,9 @@ private:
     void ZeroFillEnd(uint8_t *Data[], int64_t Start, int64_t &Count);
     bool FillInBlock(CacheBlock &Block, uint8_t *Data[], int64_t &Start, int64_t &Count);
 public:
-    BestAudioSource(const char *SourceFile, int Track, int AjustDelay = -2, size_t MaxCacheSize = 100 * 1024 * 1024, int64_t PreRoll = 200000);
+    BestAudioSource(const char *SourceFile, int Track, int AjustDelay = -2, const FFmpegOptions *Options = nullptr, int64_t PreRoll = 200000);
     ~BestAudioSource();
+    void SetMaxCacheSize(size_t bytes); /* default max size is 100MB */
     bool GetExactDuration();
     const AudioProperties &GetAudioProperties() const;
     void GetAudio(uint8_t * const * const Data, int64_t Start, int64_t Count); // Audio outside the existing range is zeroed

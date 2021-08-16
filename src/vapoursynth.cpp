@@ -1,4 +1,4 @@
-//  Copyright (c) 2020 Fredrik Mellbin
+//  Copyright (c) 2020-2021 Fredrik Mellbin
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -66,10 +66,15 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
     int AdjustDelay = vsapi->mapGetIntSaturated(in, "adjustdelay", 0, &err);
     bool ExactSamples = !!vsapi->mapGetInt(in, "exactsamples", 0, &err);
 
+    FFmpegOptions opts;
+    opts.enable_drefs = !!vsapi->mapGetInt(in, "enable_drefs", 0, &err);
+    opts.use_absolute_paths = !!vsapi->mapGetInt(in, "use_absolute_paths", 0, &err);
+    opts.drc_scale = vsapi->mapGetFloat(in, "drc_scale", 0, &err);
+
     BestAudioSourceData *D = new BestAudioSourceData();
 
     try {
-        D->A.reset(new BestAudioSource(Source, Track, AdjustDelay));
+        D->A.reset(new BestAudioSource(Source, Track, AdjustDelay, &opts));
         if (ExactSamples)
             D->A->GetExactDuration();
         const AudioProperties &AP = D->A->GetAudioProperties();
@@ -90,6 +95,6 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
 }
 
 VS_EXTERNAL_API(void) VapourSynthPluginInit2(VSPlugin *plugin, const VSPLUGINAPI *vspapi) {
-    vspapi->configPlugin("com.vapoursynth.bestaudiosource", "bas", "Best Audio Source", VS_MAKE_VERSION(0, 1), VAPOURSYNTH_API_VERSION, 0, plugin);
-    vspapi->registerFunction("Source", "source:data;track:int:opt;adjustdelay:int:opt;exactsamples:int:opt;", "clip:anode;", CreateBestAudioSource, nullptr, plugin);
+    vspapi->configPlugin("com.vapoursynth.bestaudiosource", "bas", "Best Audio Source", VS_MAKE_VERSION(0, 8), VAPOURSYNTH_API_VERSION, 0, plugin);
+    vspapi->registerFunction("Source", "source:data;track:int:opt;adjustdelay:int:opt;exactsamples:int:opt;enable_drefs:int:opt;use_absolute_paths:int:opt;drc_scale:float:opt;", "clip:anode;", CreateBestAudioSource, nullptr, plugin);
 }

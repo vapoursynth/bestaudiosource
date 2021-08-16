@@ -1,4 +1,4 @@
-//  Copyright (c) 2020 Fredrik Mellbin
+//  Copyright (c) 2020-2021 Fredrik Mellbin
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -130,6 +130,11 @@ static AVSValue __cdecl CreateBestAudioSource(AVSValue Args, void* UserData, ISc
     bool ExactSamples = Args[3].AsBool(false);
     const char *VarPrefix = Args[4].AsString("");
 
+    FFmpegOptions opts;
+    opts.enable_drefs = Args[5].AsBool(false);
+    opts.use_absolute_paths = Args[6].AsBool(false);
+    opts.drc_scale = Args[7].AsFloat(0);
+
     return new AvisynthAudioSource(Source, Track, AdjustDelay, ExactSamples, VarPrefix, Env);
 }
 
@@ -138,6 +143,6 @@ const AVS_Linkage *AVS_linkage = nullptr;
 extern "C" __declspec(dllexport) const char* __stdcall AvisynthPluginInit3(IScriptEnvironment* Env, const AVS_Linkage* const vectors) {
     AVS_linkage = vectors;
 
-    Env->AddFunction("BestAudioSource", "[source]s[track]i[adjustdelay]i[exactsamples]b[varprefix]s", CreateBestAudioSource, nullptr);
+    Env->AddFunction("BestAudioSource", "[source]s[track]i[adjustdelay]i[exactsamples]b[varprefix]s[enable_drefs]b[use_absolute_paths]b[drc_scale]f", CreateBestAudioSource, nullptr);
     return "BestAudioSource";
 }
