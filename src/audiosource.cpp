@@ -66,15 +66,15 @@ bool LWAudioDecoder::DecodeNextAVFrame() {
 void LWAudioDecoder::OpenFile(const char *SourceFile, int Track, const FFmpegOptions &options) {
     TrackNumber = Track;
 
-    AVDictionary *dict = nullptr;
-    av_dict_set_int(&dict, "enable_drefs", options.enable_drefs, 0);
-    av_dict_set_int(&dict, "use_absolute_paths", options.use_absolute_paths, 0);
-    av_dict_set_int(&dict, "advanced_editlist", 0, 0);
+    AVDictionary *Dict = nullptr;
+    av_dict_set_int(&Dict, "enable_drefs", options.enable_drefs, 0);
+    av_dict_set_int(&Dict, "use_absolute_paths", options.use_absolute_paths, 0);
+    av_dict_set_int(&Dict, "advanced_editlist", 0, 0);
 
-    if (avformat_open_input(&FormatContext, SourceFile, nullptr, &dict) != 0)
+    if (avformat_open_input(&FormatContext, SourceFile, nullptr, &Dict) != 0)
         throw AudioException(std::string("Couldn't open '") + SourceFile + "'");
 
-    av_dict_free(&dict);
+    av_dict_free(&Dict);
 
     if (avformat_find_stream_info(FormatContext, nullptr) < 0) {
         avformat_close_input(&FormatContext);
