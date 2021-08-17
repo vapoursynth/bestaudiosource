@@ -48,7 +48,7 @@ class AvisynthAudioSource : public IClip {
     size_t bytesPerOutputSample;
 public:
     AvisynthAudioSource(const char *SourceFile, int Track,
-                        int AdjustDelay, bool ExactSamples, const char *VarPrefix, IScriptEnvironment* Env);
+                        int AdjustDelay, bool ExactSamples, const char *VarPrefix, const FFmpegOptions &Options, IScriptEnvironment* Env);
     bool __stdcall GetParity(int n) { return false; }
     int __stdcall SetCacheHints(int cachehints, int frame_range) { return 0; }
     const VideoInfo& __stdcall GetVideoInfo() { return VI; }
@@ -57,9 +57,9 @@ public:
 };
 
 AvisynthAudioSource::AvisynthAudioSource(const char *SourceFile, int Track,
-                                         int AdjustDelay, bool ExactSamples, const char *VarPrefix, IScriptEnvironment *Env) {
+                                         int AdjustDelay, bool ExactSamples, const char *VarPrefix, const FFmpegOptions &Options, IScriptEnvironment *Env) {
     try {
-        A.reset(new BestAudioSource(SourceFile, Track));
+        A.reset(new BestAudioSource(SourceFile, Track, AdjustDelay, &Options));
         if (ExactSamples)
             A->GetExactDuration();
     } catch (AudioException & E) {
@@ -130,12 +130,12 @@ static AVSValue __cdecl CreateBestAudioSource(AVSValue Args, void* UserData, ISc
     bool ExactSamples = Args[3].AsBool(false);
     const char *VarPrefix = Args[4].AsString("");
 
-    FFmpegOptions opts;
-    opts.enable_drefs = Args[5].AsBool(false);
-    opts.use_absolute_path = Args[6].AsBool(false);
-    opts.drc_scale = Args[7].AsFloat(0);
+    FFmpegOptions Options;
+    Options.enable_drefs = Args[5].AsBool(false);
+    Options.use_absolute_path = Args[6].AsBool(false);
+    Options.drc_scale = Args[7].AsFloat(0);
 
-    return new AvisynthAudioSource(Source, Track, AdjustDelay, ExactSamples, VarPrefix, Env);
+    return new AvisynthAudioSource(Source, Track, AdjustDelay, ExactSamples, VarPrefix, Options, Env);
 }
 
 const AVS_Linkage *AVS_linkage = nullptr;
