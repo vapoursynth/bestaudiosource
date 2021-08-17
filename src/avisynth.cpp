@@ -132,7 +132,7 @@ static AVSValue __cdecl CreateBestAudioSource(AVSValue Args, void* UserData, ISc
 
     FFmpegOptions opts;
     opts.enable_drefs = Args[5].AsBool(false);
-    opts.use_absolute_paths = Args[6].AsBool(false);
+    opts.use_absolute_path = Args[6].AsBool(false);
     opts.drc_scale = Args[7].AsFloat(0);
 
     return new AvisynthAudioSource(Source, Track, AdjustDelay, ExactSamples, VarPrefix, Env);
@@ -143,6 +143,6 @@ const AVS_Linkage *AVS_linkage = nullptr;
 extern "C" __declspec(dllexport) const char* __stdcall AvisynthPluginInit3(IScriptEnvironment* Env, const AVS_Linkage* const vectors) {
     AVS_linkage = vectors;
 
-    Env->AddFunction("BestAudioSource", "[source]s[track]i[adjustdelay]i[exactsamples]b[varprefix]s[enable_drefs]b[use_absolute_paths]b[drc_scale]f", CreateBestAudioSource, nullptr);
+    Env->AddFunction("BestAudioSource", "[source]s[track]i[adjustdelay]i[exactsamples]b[varprefix]s[enable_drefs]b[use_absolute_path]b[drc_scale]f", CreateBestAudioSource, nullptr);
     return "BestAudioSource";
 }

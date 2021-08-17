@@ -68,7 +68,7 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
 
     FFmpegOptions opts;
     opts.enable_drefs = !!vsapi->mapGetInt(in, "enable_drefs", 0, &err);
-    opts.use_absolute_paths = !!vsapi->mapGetInt(in, "use_absolute_paths", 0, &err);
+    opts.use_absolute_path = !!vsapi->mapGetInt(in, "use_absolute_path", 0, &err);
     opts.drc_scale = vsapi->mapGetFloat(in, "drc_scale", 0, &err);
 
     BestAudioSourceData *D = new BestAudioSourceData();
@@ -96,5 +96,5 @@ static void VS_CC CreateBestAudioSource(const VSMap *in, VSMap *out, void *, VSC
 
 VS_EXTERNAL_API(void) VapourSynthPluginInit2(VSPlugin *plugin, const VSPLUGINAPI *vspapi) {
     vspapi->configPlugin("com.vapoursynth.bestaudiosource", "bas", "Best Audio Source", VS_MAKE_VERSION(0, 8), VAPOURSYNTH_API_VERSION, 0, plugin);
-    vspapi->registerFunction("Source", "source:data;track:int:opt;adjustdelay:int:opt;exactsamples:int:opt;enable_drefs:int:opt;use_absolute_paths:int:opt;drc_scale:float:opt;", "clip:anode;", CreateBestAudioSource, nullptr, plugin);
+    vspapi->registerFunction("Source", "source:data;track:int:opt;adjustdelay:int:opt;exactsamples:int:opt;enable_drefs:int:opt;use_absolute_path:int:opt;drc_scale:float:opt;", "clip:anode;", CreateBestAudioSource, nullptr, plugin);
 }

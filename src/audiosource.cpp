@@ -68,7 +68,7 @@ void LWAudioDecoder::OpenFile(const char *SourceFile, int Track, const FFmpegOpt
 
     AVDictionary *Dict = nullptr;
     av_dict_set_int(&Dict, "enable_drefs", options.enable_drefs, 0);
-    av_dict_set_int(&Dict, "use_absolute_paths", options.use_absolute_paths, 0);
+    av_dict_set_int(&Dict, "use_absolute_path", options.use_absolute_path, 0);
     av_dict_set_int(&Dict, "advanced_editlist", 0, 0);
 
     if (avformat_open_input(&FormatContext, SourceFile, nullptr, &Dict) != 0)

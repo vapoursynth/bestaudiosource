@@ -54,7 +54,7 @@ struct AudioProperties {
 struct FFmpegOptions {
     /* mp4/mov/3gpp demuxer options */
     bool enable_drefs = false;
-    bool use_absolute_paths = false;
+    bool use_absolute_path = false;
     /* ac3 decoder family options */
     double drc_scale = 0;
 };
