@@ -121,11 +121,15 @@ void LWAudioDecoder::OpenFile(const char *SourceFile, int Track, const FFmpegOpt
 
     if (options.drc_scale < 0)
         throw AudioException("Invalid drc_scale value");
-    if (Codec->id == AV_CODEC_ID_AC3 || Codec->id == AV_CODEC_ID_EAC3)
-        av_opt_set_double(CodecContext->priv_data, "drc_scale", options.drc_scale, 0);
 
-    if (avcodec_open2(CodecContext, Codec, nullptr) < 0)
+    AVDictionary *CodecDict = nullptr;
+    if (Codec->id == AV_CODEC_ID_AC3 || Codec->id == AV_CODEC_ID_EAC3)
+        av_dict_set(&CodecDict, "drc_scale", std::to_string(options.drc_scale).c_str(), 0);
+
+    if (avcodec_open2(CodecContext, Codec, &CodecDict) < 0)
         throw AudioException("Could not open audio codec");
+
+    av_dict_free(&CodecDict);
 }
 
 LWAudioDecoder::LWAudioDecoder(const char *SourceFile, int Track, const FFmpegOptions &options) {
