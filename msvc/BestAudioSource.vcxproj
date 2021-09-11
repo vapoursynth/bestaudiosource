@@ -74,22 +74,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../ffmpeg32/lib;../../zlib32;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../../vapoursynth/include;../../AviSynthPlus/avs_core/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>../../ffmpeg64/lib;../../zlib64;$(LibraryPath)</LibraryPath>
     <IncludePath>../../../vapoursynth/include;../../AviSynthPlus/avs_core/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../../vapoursynth/include;../../AviSynthPlus/avs_core/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../ffmpeg32/lib;../../zlib32;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../../vapoursynth/include;../../AviSynthPlus/avs_core/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>../../ffmpeg64/lib;../../zlib64;$(LibraryPath)</LibraryPath>
     <IncludePath>../../../vapoursynth/include;../../AviSynthPlus/avs_core/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -100,7 +96,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;BESTAUDIOSOURCE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -117,7 +113,7 @@
       <PreprocessorDefinitions>_DEBUG;BESTAUDIOSOURCE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,7 +132,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;BESTAUDIOSOURCE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
