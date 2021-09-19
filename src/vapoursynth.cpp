@@ -23,6 +23,7 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <limits>
 
 struct BestAudioSourceData {
     VSAudioInfo AI = {};
