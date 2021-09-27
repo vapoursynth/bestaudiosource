@@ -71,12 +71,12 @@ private:
     bool DecodeSuccess = false;
     AVPacket *Packet = nullptr;
 
-    void OpenFile(const char *SourceFile, int Track, const FFmpegOptions &options);
+    void OpenFile(const char *SourceFile, int Track, const FFmpegOptions &Options);
     bool ReadPacket(AVPacket *Packet);
     bool DecodeNextAVFrame();
     void Free();
 public:
-    LWAudioDecoder(const char *SourceFile, int Track, const FFmpegOptions &options); // Positive track numbers are absolute. Negative track numbers mean nth audio track to simplify things.
+    LWAudioDecoder(const char *SourceFile, int Track, const FFmpegOptions &Options); // Positive track numbers are absolute. Negative track numbers mean nth audio track to simplify things.
     ~LWAudioDecoder();
     int64_t GetRelativeStartTime(int Track) const; // Returns INT64_MIN on error
     int64_t GetSamplePosition() const;

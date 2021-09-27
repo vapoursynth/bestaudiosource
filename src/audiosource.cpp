@@ -63,12 +63,12 @@ bool LWAudioDecoder::DecodeNextAVFrame() {
     return false;
 }
 
-void LWAudioDecoder::OpenFile(const char *SourceFile, int Track, const FFmpegOptions &options) {
+void LWAudioDecoder::OpenFile(const char *SourceFile, int Track, const FFmpegOptions &Options) {
     TrackNumber = Track;
 
     AVDictionary *Dict = nullptr;
-    av_dict_set_int(&Dict, "enable_drefs", options.enable_drefs, 0);
-    av_dict_set_int(&Dict, "use_absolute_path", options.use_absolute_path, 0);
+    av_dict_set_int(&Dict, "enable_drefs", Options.enable_drefs, 0);
+    av_dict_set_int(&Dict, "use_absolute_path", Options.use_absolute_path, 0);
 
     if (avformat_open_input(&FormatContext, SourceFile, nullptr, &Dict) != 0)
         throw AudioException(std::string("Couldn't open '") + SourceFile + "'");
@@ -131,10 +131,10 @@ void LWAudioDecoder::OpenFile(const char *SourceFile, int Track, const FFmpegOpt
     av_dict_free(&CodecDict);
 }
 
-LWAudioDecoder::LWAudioDecoder(const char *SourceFile, int Track, const FFmpegOptions &options) {
+LWAudioDecoder::LWAudioDecoder(const char *SourceFile, int Track, const FFmpegOptions &Options) {
     try {
         Packet = av_packet_alloc();
-        OpenFile(SourceFile, Track, options);
+        OpenFile(SourceFile, Track, Options);
 
         DecodeSuccess = DecodeNextAVFrame();
         
