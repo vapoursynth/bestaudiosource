@@ -292,7 +292,7 @@ bool BestAudioSource::GetExactDuration() {
     if (HasExactNumAudioSamples)
         return true;
     int Index = -1;
-    for (int i = 0; i < MaxAudioSources; i++) {
+    for (size_t i = 0; i < MaxAudioSources; i++) {
         if (Decoders[i] && (Index < 0 || Decoders[Index]->GetFrameNumber() < Decoders[i]->GetFrameNumber()))
             Index = i;
     }
@@ -386,14 +386,14 @@ void BestAudioSource::GetAudio(uint8_t * const * const Data, int64_t Start, int6
         return;
 
     int Index = -1;
-    for (int i = 0; i < MaxAudioSources; i++) {
+    for (size_t i = 0; i < MaxAudioSources; i++) {
         if (Decoders[i] && Decoders[i]->GetSamplePosition() <= Start && (Index < 0 || Decoders[Index]->GetSamplePosition() < Decoders[i]->GetSamplePosition()))
             Index = i;
     }
 
     // If an empty slot exists simply spawn a new decoder there
     if (Index < 0) {
-        for (int i = 0; i < MaxAudioSources; i++) {
+        for (size_t i = 0; i < MaxAudioSources; i++) {
             if (!Decoders[i]) {
                 Index = i;
                 Decoders[i] = new LWAudioDecoder(Source.c_str(), Track, FFOptions);
@@ -405,7 +405,7 @@ void BestAudioSource::GetAudio(uint8_t * const * const Data, int64_t Start, int6
     // No far enough back decoder exists and all slots are occupied so evict a random one
     if (Index < 0) {
         Index = 0;
-        for (int i = 0; i < MaxAudioSources; i++) {
+        for (size_t i = 0; i < MaxAudioSources; i++) {
             if (Decoders[i] && DecoderLastUse[i] < DecoderLastUse[Index])
                 Index = i;
         }
